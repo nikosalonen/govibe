@@ -1,35 +1,56 @@
 package main
 
 import (
+	"fmt"
 	"log"
 	"net"
 	"net/http"
+	"os"
 	"regexp"
 	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
+	"github.com/tkanos/gonfig"
 	"gopkg.in/irc.v3"
 	"mvdan.cc/xurls"
 )
 
+//Configuration for irc connection
+type Configuration struct {
+	URL     string
+	Port    string
+	Nick    string
+	User    string
+	Name    string
+	Channel string
+}
+
 func main() {
-	conn, err := net.Dial("tcp", "open.ircnet.net:6667")
+
+	configuration := Configuration{}
+	confErr := gonfig.GetConf("config.json", &configuration)
+	if confErr != nil {
+		fmt.Println(confErr)
+		os.Exit(500)
+	}
+	ircURL := configuration.URL + ":" + configuration.Port
+	conn, err := net.Dial("tcp", ircURL)
 	if err != nil {
 		log.Fatalln(err)
 	}
 	rx := xurls.Relaxed()
 	re := regexp.MustCompile(`http://|https://`)
 	re2 := regexp.MustCompile(`://`)
+
 	config := irc.ClientConfig{
-		Nick: "varavibe2",
-		Pass: "password",
-		User: "varavibe",
-		Name: "AS;D;AS;DA;SD;;DAS",
+		Nick: configuration.Nick,
+		User: configuration.User,
+		Name: configuration.Name,
 		Handler: irc.HandlerFunc(func(c *irc.Client, m *irc.Message) {
 			if m.Command == "001" {
 				// 001 is a welcome event, so we join channels there
-				c.Write("JOIN #rölölöö")
+				c.Write("JOIN " + configuration.Channel)
 			} else if m.Command == "PRIVMSG" && c.FromChannel(m) {
 				// Create a handler on all messages.
 				url := rx.FindString(m.Trailing())
