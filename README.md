@@ -1,6 +1,7 @@
 # govibe
  varavibe2
 
-1. clone this repo
+1. clone the repo
 2. download dependencies `go get`
-3. `go run main.go`
+3. change config to your pleasing
+4. `go run main.go`
