@@ -21,14 +21,14 @@ func main() {
 	re := regexp.MustCompile(`http://|https://`)
 	re2 := regexp.MustCompile(`://`)
 	config := irc.ClientConfig{
-		Nick: "varavibe2",
+		Nick: "varavibe",
 		Pass: "password",
 		User: "varavibe",
 		Name: "AS;D;AS;DA;SD;;DAS",
 		Handler: irc.HandlerFunc(func(c *irc.Client, m *irc.Message) {
 			if m.Command == "001" {
 				// 001 is a welcome event, so we join channels there
-				c.Write("JOIN #rölölöö")
+				c.Write("JOIN #rölö")
 			} else if m.Command == "PRIVMSG" && c.FromChannel(m) {
 				// Create a handler on all messages.
 				url := rx.FindString(m.Trailing())
