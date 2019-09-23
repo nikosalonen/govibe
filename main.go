@@ -5,6 +5,7 @@ import (
 	"net"
 	"net/http"
 	"regexp"
+	"strings"
 	"time"
 
 	"github.com/PuerkitoBio/goquery"
@@ -60,7 +61,7 @@ func main() {
 							Command: "PRIVMSG",
 							Params: []string{
 								m.Params[0],
-								title,
+								strings.TrimSpace(title),
 							},
 						})
 					}
