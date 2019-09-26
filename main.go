@@ -52,12 +52,15 @@ func main() {
 				// 001 is a welcome event, so we join channels there
 				c.Write("JOIN " + configuration.Channel)
 			} else if m.Command == "PRIVMSG" && c.FromChannel(m) {
-				// Create a handler on all messages.
+				// Does message include url
 				url := rx.FindString(m.Trailing())
 				if len(url) > 0 {
+					// Create http client with 30s timeout
 					client := &http.Client{
 						Timeout: 30 * time.Second,
 					}
+
+					// Check if url has http(s):// included
 					isHTTP := re.MatchString(url)
 					isSomethigElse := re2.MatchString(url)
 					if !isHTTP && isSomethigElse {
@@ -66,18 +69,19 @@ func main() {
 						url = "http://" + url
 					}
 
+					// Try to get url
 					resp, err := client.Get(url)
 					if err != nil {
 						return
 					}
 					defer resp.Body.Close()
 
+					// Query title of the page
 					document, err := goquery.NewDocumentFromReader(resp.Body)
-
 					title := document.Find("title").Text()
 
+					//Send title if found
 					if len(title) > 0 {
-
 						c.WriteMessage(&irc.Message{
 							Command: "PRIVMSG",
 							Params: []string{
